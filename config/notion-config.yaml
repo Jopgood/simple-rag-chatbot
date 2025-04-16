@@ -1,0 +1,61 @@
+# Notion Integration Configuration
+
+# Authentication
+auth:
+  # Your Notion API token - this is just a placeholder, should be in .env file
+  api_token: ${NOTION_API_TOKEN}
+
+# Content Sources - Define what Notion content to index
+sources:
+  # Pages - List of specific Notion pages to include
+  pages:
+    - id: "page_id_1" # Replace with actual Notion page ID
+      name: "Distribution Team Overview"
+      description: "General overview of the Distribution Team's processes"
+      
+    - id: "page_id_2" # Replace with actual Notion page ID
+      name: "Distribution Workflows"
+      description: "Detailed workflows for distribution processes"
+  
+  # Databases - List of Notion databases to include
+  databases:
+    - id: "database_id_1" # Replace with actual Notion database ID
+      name: "Distribution Knowledge Base"
+      description: "Key information for the Distribution team"
+      # Optionally filter database entries
+      filter:
+        property: "Status"
+        select:
+          equals: "Published"
+          
+    - id: "database_id_2" # Replace with actual Notion database ID
+      name: "Distribution FAQ"
+      description: "Frequently asked questions"
+
+# Content Processing Options
+processing:
+  # How to chunk content for embedding
+  chunking:
+    strategy: "paragraph"     # Options: paragraph, fixed, semantic
+    max_chunk_size: 1000      # Maximum characters per chunk
+    overlap: 200              # Character overlap between chunks
+  
+  # Content to exclude (optional)
+  exclude:
+    block_types:              # Notion block types to skip
+      - "image"
+      - "video"
+      - "file"
+    properties:               # Database properties to skip
+      - "Created time"
+      - "Last edited by"
+    
+  # Handle special content
+  include_tables: true        # Process table content
+  include_code_blocks: true   # Process code blocks
+  include_metadata: true      # Include page titles and headings as context
+
+# Sync settings
+sync:
+  schedule: "daily"           # Options: hourly, daily, manual
+  track_changes: true         # Keep record of content changes
