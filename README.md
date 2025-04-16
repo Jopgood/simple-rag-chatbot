@@ -77,7 +77,7 @@ npm run initialize
 The initialization script will:
 1. Generate the Prisma client based on your schema
 2. Find all content blocks in the database
-3. Generate vector embeddings for each block using Google AI
+3. Generate vector embeddings for each block using Google AI (768 dimensions)
 4. Store the embeddings in the database for similarity searches
 
 ### Run the chatbot
@@ -165,6 +165,15 @@ You can customize the chatbot's behavior in several ways:
 - `DEBUG`: (optional) Comma-delimited debugging options: `main`, `data`, `llm`, `embedding`
 
 ## Troubleshooting
+
+### Embedding Dimension Issues
+
+If you see an error like `expected 1536 dimensions, not 768`:
+
+1. The database schema is expecting vectors with a different dimension than what the embedding model produces
+2. Google's `embedding-001` model produces 768-dimensional vectors
+3. Make sure your migration file in `supabase/migrations/` specifies `vector(768)` for the embedding column
+4. Run `npx supabase db reset` to recreate the tables with the correct dimensions
 
 ### Prisma Client Issues
 
