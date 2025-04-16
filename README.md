@@ -17,6 +17,7 @@ This chatbot leverages the power of LLMs (specifically Google's Gemini model) wh
 * [Node.js](https://nodejs.org/en) (v16 or higher)
 * A [Google AI Studio API key](https://ai.google.dev/) for embeddings and chat responses
 * [Supabase local environment](https://supabase.com/docs/guides/local-development) (installed via npm/docker)
+* (Optional) A [Notion API token](https://www.notion.so/my-integrations) for Notion integration
 
 ## Quickstart
 
@@ -30,6 +31,7 @@ This chatbot leverages the power of LLMs (specifically Google's Gemini model) wh
    npx supabase start
    ```
 4. A [Google AI Studio API Key](https://ai.google.dev/)
+5. (Optional) A [Notion API token](https://www.notion.so/my-integrations) if using Notion integration
 
 ### Clone this repository
 
@@ -56,6 +58,8 @@ npm install
 ```
 export DATABASE_URL="postgresql://postgres:postgres@localhost:54322/postgres"
 export GOOGLE_API_KEY=YOUR_GOOGLE_API_KEY
+# Optional: For Notion integration
+export NOTION_API_TOKEN=YOUR_NOTION_API_TOKEN
 ```
 
 Alternatively, create a `.env` file in the repository root with these variables.
@@ -70,13 +74,19 @@ npx supabase db reset
 
 Then generate the Prisma client and initialize the vector embeddings:
 
+For standard initialization with seed data:
 ```
 npm run initialize
 ```
 
+For initialization with Notion data:
+```
+npm run initialize:notion
+```
+
 The initialization script will:
 1. Generate the Prisma client based on your schema
-2. Find all content blocks in the database
+2. Find all content blocks (either from seed data or Notion)
 3. Generate vector embeddings for each block using Google AI (768 dimensions)
 4. Store the embeddings in the database for similarity searches
 
@@ -84,6 +94,57 @@ The initialization script will:
 
 ```
 npm run start
+```
+
+## Using Notion as a Data Source
+
+This chatbot can use Notion pages and databases as a knowledge source. To set it up:
+
+### 1. Create a Notion Integration
+
+1. Go to [Notion My Integrations](https://www.notion.so/my-integrations)
+2. Click "New integration"
+3. Name it (e.g., "RAG Chatbot") and select the workspace
+4. Required capabilities: Read content
+5. Copy the API token (you'll use this as `NOTION_API_TOKEN`)
+
+### 2. Share Notion Pages with the Integration
+
+1. In Notion, open the page or database you want to use as a knowledge source
+2. Click "Share" in the top right
+3. In the search field, find your integration by name
+4. Click "Invite"
+
+### 3. Configure Notion Content Sources
+
+Edit the `config/notion-config.yaml` file to specify which Notion content to include:
+
+```yaml
+sources:
+  # Pages - List of specific Notion pages to include
+  pages:
+    - id: "page_id_1" # Replace with actual Notion page ID
+      name: "Distribution Team Overview"
+      
+  # Databases - List of Notion databases to include
+  databases:
+    - id: "database_id_1" # Replace with actual Notion database ID
+      name: "Distribution Knowledge Base"
+```
+
+The page/database IDs can be found in the URL of your Notion pages:
+```
+https://www.notion.so/workspace/Your-Page-Title-abcdef123456
+                                           ^^^^^^^^^^^^
+                                           This is the page ID
+```
+
+### 4. Initialize with Notion Content
+
+Run the Notion initialization:
+
+```
+npm run initialize:notion
 ```
 
 ## Complete Setup Procedure (If Having Issues)
@@ -99,6 +160,7 @@ If you're encountering issues with the setup, follow these complete steps:
    ```
    DATABASE_URL="postgresql://postgres:postgres@localhost:54322/postgres"
    GOOGLE_API_KEY=your_google_api_key_here
+   NOTION_API_TOKEN=your_notion_api_token_here  # If using Notion
    ```
 
 3. Start a fresh Supabase instance:
@@ -118,8 +180,14 @@ If you're encountering issues with the setup, follow these complete steps:
    ```
 
 6. Initialize the chatbot:
+   For standard seed data:
    ```
    npm run initialize
+   ```
+   
+   For Notion integration:
+   ```
+   npm run initialize:notion
    ```
 
 7. Run the chatbot:
@@ -129,7 +197,9 @@ If you're encountering issues with the setup, follow these complete steps:
 
 ## Extending the Knowledge Base
 
-To add your own company's knowledge to the chatbot:
+You can add content to the chatbot in two ways:
+
+### Option 1: Using seed.sql (Manual)
 
 1. Add content to the `supabase/seed.sql` file:
    ```sql
@@ -150,6 +220,14 @@ To add your own company's knowledge to the chatbot:
    npm run initialize
    ```
 
+### Option 2: Using Notion (Recommended)
+
+1. Update your `config/notion-config.yaml` file with new pages or databases
+2. Run the Notion initialization:
+   ```
+   npm run initialize:notion
+   ```
+
 ## Customization
 
 You can customize the chatbot's behavior in several ways:
@@ -157,12 +235,14 @@ You can customize the chatbot's behavior in several ways:
 - Modify the message similarity threshold in `app.js` (default: 0.3)
 - Change the LLM prompt template in `llm.js` to alter tone and style
 - Adjust the vector embedding model in `llm.js`
+- Configure the Notion content processing in `config/notion-config.yaml`
 
 ## Environment Variables
 
 - `DATABASE_URL`: (required) Connection string to the PostgreSQL instance
 - `GOOGLE_API_KEY`: (required) API key for Google Generative AI operations
-- `DEBUG`: (optional) Comma-delimited debugging options: `main`, `data`, `llm`, `embedding`
+- `NOTION_API_TOKEN`: (optional) API token for Notion integration
+- `DEBUG`: (optional) Comma-delimited debugging options: `main`, `data`, `llm`, `embedding`, `notion`
 
 ## Troubleshooting
 
@@ -195,7 +275,7 @@ If you encounter errors related to Prisma:
 
 ### Database Errors
 
-If you see errors about missing tables like `relation "public.block" does not exist`:
+If you see errors about missing tables like `relation \"public.block\" does not exist`:
 
 1. The database schema might not be properly initialized
 2. Make sure to run `npx supabase db reset` to apply the migrations
@@ -209,6 +289,15 @@ If you encounter errors with vector embeddings:
 2. Check that your Google API key is valid and has access to the embedding models
 3. Run with debug enabled: `DEBUG=embedding,llm npm run initialize`
 
+### Notion Integration Issues
+
+If you encounter issues with the Notion integration:
+
+1. Verify your Notion API token is correct and has appropriate permissions
+2. Check that you've shared your Notion pages/databases with your integration
+3. Verify the page/database IDs in your config file
+4. Run with debug enabled: `DEBUG=notion npm run initialize:notion`
+
 ### Connection Issues
 
 If you have issues connecting to the database:
@@ -217,10 +306,19 @@ If you have issues connecting to the database:
 2. Check if Supabase is running with `npx supabase status`
 3. Try restarting Supabase with `npx supabase stop` and then `npx supabase start`
 
-## Getting a Google API Key
+## Getting API Keys
+
+### Google API Key
 
 1. Visit [Google AI Studio](https://ai.google.dev/)
 2. Sign in with your Google account
 3. Go to the API Keys section
 4. Create a new API key and copy it
 5. Set the `GOOGLE_API_KEY` environment variable in your `.env` file
+
+### Notion API Token
+
+1. Go to [Notion My Integrations](https://www.notion.so/my-integrations)
+2. Create a new integration or select an existing one
+3. Copy the "Internal Integration Token"
+4. Set the `NOTION_API_TOKEN` environment variable in your `.env` file
