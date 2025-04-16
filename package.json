@@ -9,6 +9,9 @@
     "initialize": "npx prisma generate && node cli.js initialize",
     "initialize:notion": "npx prisma generate && node cli.js initialize-notion",
     "sync:notion": "node scripts/sync-notion.js",
+    "cleanup:migrations": "node scripts/cleanup-migrations.js",
+    "setup": "npx supabase db reset && npm run initialize",
+    "setup:notion": "npx supabase db reset && npm run initialize:notion",
     "prisma:generate": "npx prisma generate",
     "test": "echo \"Error: no test specified\" && exit 1"
   },
