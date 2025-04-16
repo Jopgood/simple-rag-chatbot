@@ -1,0 +1,33 @@
+{
+  "name": "simple-rag-chatbot",
+  "version": "0.1.0",
+  "description": "A CLI-based RAG chatbot without authorization restrictions",
+  "main": "cli.js",
+  "type": "module",
+  "scripts": {
+    "start": "node cli.js start",
+    "initialize": "node cli.js initialize",
+    "test": "echo \"Error: no test specified\" && exit 1"
+  },
+  "keywords": [
+    "rag",
+    "chatbot",
+    "llm",
+    "embeddings",
+    "retrieval"
+  ],
+  "author": "",
+  "license": "MIT",
+  "dependencies": {
+    "@google/generative-ai": "^0.2.1",
+    "@prisma/client": "^5.5.2",
+    "commander": "^11.1.0",
+    "debug": "^4.3.4",
+    "dotenv": "^16.3.1",
+    "inquirer": "^9.2.12"
+  },
+  "devDependencies": {
+    "prisma": "^5.5.2",
+    "supabase": "^1.112.0"
+  }
+}
