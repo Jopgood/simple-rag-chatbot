@@ -7,6 +7,7 @@
   "scripts": {
     "start": "node cli.js start",
     "initialize": "npx prisma generate && node cli.js initialize",
+    "initialize:notion": "npx prisma generate && node cli.js initialize-notion",
     "prisma:generate": "npx prisma generate",
     "test": "echo \"Error: no test specified\" && exit 1"
   },
@@ -21,11 +22,13 @@
   "license": "MIT",
   "dependencies": {
     "@google/generative-ai": "^0.2.1",
+    "@notionhq/client": "^2.2.14",
     "@prisma/client": "^5.5.2",
     "commander": "^11.1.0",
     "debug": "^4.3.4",
     "dotenv": "^16.3.1",
-    "inquirer": "^9.2.12"
+    "inquirer": "^9.2.12",
+    "js-yaml": "^4.1.0"
   },
   "devDependencies": {
     "prisma": "^5.5.2",
