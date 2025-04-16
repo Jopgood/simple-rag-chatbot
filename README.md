@@ -14,7 +14,7 @@ This chatbot leverages the power of LLMs (specifically Google's Gemini model) wh
 ## Prerequisites
 
 * [Docker](https://www.docker.com/)
-* [Node.js](https://nodejs.org/en)
+* [Node.js](https://nodejs.org/en) (v16 or higher)
 * A [Google AI Studio API key](https://ai.google.dev/) for embeddings and chat responses
 * [Supabase local environment](https://supabase.com/docs/guides/local-development) (installed via npm/docker)
 
@@ -66,36 +66,66 @@ Make sure Supabase is running, then:
 
 ```
 npx supabase db reset
+```
+
+Then generate the Prisma client and initialize the vector embeddings:
+
+```
 npm run initialize
 ```
 
-If you encounter an error like `relation "public.block" does not exist`, follow these steps:
-
-1. Stop any running Supabase instances:
-   ```
-   npx supabase stop
-   ```
-
-2. Start a fresh Supabase instance:
-   ```
-   npx supabase start
-   ```
-
-3. Apply the migrations and seed data:
-   ```
-   npx supabase db reset
-   ```
-
-4. Initialize the vector embeddings:
-   ```
-   npm run initialize
-   ```
+The initialization script will:
+1. Generate the Prisma client based on your schema
+2. Find all content blocks in the database
+3. Generate vector embeddings for each block using Google AI
+4. Store the embeddings in the database for similarity searches
 
 ### Run the chatbot
 
 ```
 npm run start
 ```
+
+## Complete Setup Procedure (If Having Issues)
+
+If you're encountering issues with the setup, follow these complete steps:
+
+1. Install dependencies:
+   ```
+   npm install
+   ```
+
+2. Create `.env` file with your API key:
+   ```
+   DATABASE_URL="postgresql://postgres:postgres@localhost:54322/postgres"
+   GOOGLE_API_KEY=your_google_api_key_here
+   ```
+
+3. Start a fresh Supabase instance:
+   ```
+   npx supabase stop
+   npx supabase start
+   ```
+
+4. Reset the database to apply migrations:
+   ```
+   npx supabase db reset
+   ```
+
+5. Generate the Prisma client:
+   ```
+   npx prisma generate
+   ```
+
+6. Initialize the chatbot:
+   ```
+   npm run initialize
+   ```
+
+7. Run the chatbot:
+   ```
+   npm run start
+   ```
 
 ## Extending the Knowledge Base
 
@@ -135,6 +165,24 @@ You can customize the chatbot's behavior in several ways:
 - `DEBUG`: (optional) Comma-delimited debugging options: `main`, `data`, `llm`, `embedding`
 
 ## Troubleshooting
+
+### Prisma Client Issues
+
+If you encounter errors related to Prisma:
+
+1. Make sure to generate the Prisma client:
+   ```
+   npx prisma generate
+   ```
+
+2. If that doesn't work, try:
+   ```
+   rm -rf node_modules
+   npm install
+   npx prisma generate
+   ```
+
+3. Check your Prisma schema at `prisma/schema.prisma` to ensure it's correct
 
 ### Database Errors
 
