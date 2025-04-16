@@ -69,19 +69,20 @@ Alternatively, create a `.env` file in the repository root with these variables.
 Make sure Supabase is running, then:
 
 ```
+# For a complete setup (database reset + initialization)
+npm run setup         # Standard setup with seed data
+npm run setup:notion  # Setup with Notion data
+```
+
+OR manually:
+
+```
+# Reset the database
 npx supabase db reset
-```
 
-Then generate the Prisma client and initialize the vector embeddings:
-
-For standard initialization with seed data:
-```
-npm run initialize
-```
-
-For initialization with Notion data:
-```
-npm run initialize:notion
+# Generate Prisma client and initialize embeddings
+npm run initialize        # For standard seed data
+npm run initialize:notion # For Notion data
 ```
 
 The initialization script will:
@@ -144,7 +145,7 @@ https://www.notion.so/workspace/Your-Page-Title-abcdef123456
 Run the Notion initialization:
 
 ```
-npm run initialize:notion
+npm run setup:notion
 ```
 
 ## Complete Setup Procedure (If Having Issues)
@@ -195,6 +196,30 @@ If you're encountering issues with the setup, follow these complete steps:
    npm run start
    ```
 
+### Troubleshooting Migration Issues
+
+If you encounter errors during database migration like:
+```
+ERROR: relation "public.document" does not exist (SQLSTATE 42P01)
+```
+
+This can happen because the migration files might be processed in the wrong order. You can fix this by:
+
+1. Run the cleanup script to remove old migration files:
+   ```
+   npm run cleanup:migrations
+   ```
+
+2. Restart Supabase and run the setup script:
+   ```
+   npx supabase stop
+   npx supabase start
+   npm run setup        # For standard data
+   npm run setup:notion # For Notion data
+   ```
+
+This ensures that the migrations run in the correct order, creating tables before modifying them.
+
 ## Extending the Knowledge Base
 
 You can add content to the chatbot in two ways:
@@ -216,8 +241,7 @@ You can add content to the chatbot in two ways:
 
 2. Run the initialization process again:
    ```
-   npx supabase db reset
-   npm run initialize
+   npm run setup
    ```
 
 ### Option 2: Using Notion (Recommended)
@@ -225,7 +249,7 @@ You can add content to the chatbot in two ways:
 1. Update your `config/notion-config.yaml` file with new pages or databases
 2. Run the Notion initialization:
    ```
-   npm run initialize:notion
+   npm run setup:notion
    ```
 
 ## Customization
@@ -280,6 +304,7 @@ If you see errors about missing tables like `relation \"public.block\" does not 
 1. The database schema might not be properly initialized
 2. Make sure to run `npx supabase db reset` to apply the migrations
 3. Check that Supabase is running with `npx supabase status`
+4. If you see migration errors about tables not existing, see the "Troubleshooting Migration Issues" section above
 
 ### Vector Embedding Issues
 
