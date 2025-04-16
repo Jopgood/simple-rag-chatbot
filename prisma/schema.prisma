@@ -10,15 +10,25 @@ datasource db {
 }
 
 model block {
-  id          Int                    @id @default(autoincrement())
-  document_id Int?
-  content     String
-  embedding   Unsupported("vector")?
-  document    document?              @relation(fields: [document_id], references: [id], onDelete: NoAction, onUpdate: NoAction)
+  id              Int                    @id @default(autoincrement())
+  document_id     Int?
+  content         String
+  embedding       Unsupported("vector")?
+  notion_block_id String?               // Notion block ID for tracking
+  context         String?               // Contextual information (e.g., heading)
+  created_at      DateTime              @default(now())
+  updated_at      DateTime              @updatedAt
+  document        document?              @relation(fields: [document_id], references: [id], onDelete: NoAction, onUpdate: NoAction)
 }
 
 model document {
-  id     Int     @id @default(autoincrement())
-  title  String
-  block  block[]
+  id          Int       @id @default(autoincrement())
+  title       String
+  notion_id   String?   // Notion page ID for tracking
+  notion_url  String?   // URL to the original Notion page
+  source_type String?   // 'notion', 'manual', etc.
+  last_updated DateTime? // When the source was last updated
+  created_at  DateTime  @default(now())
+  updated_at  DateTime  @updatedAt
+  block       block[]
 }
