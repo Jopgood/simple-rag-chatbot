@@ -1,4 +1,5 @@
-import { Prisma, PrismaClient } from "@prisma/client";
+import pkg from "@prisma/client";
+const { Prisma, PrismaClient } = pkg;
 import debug from "debug";
 import { generateEmbedding } from "./llm.js";
 
