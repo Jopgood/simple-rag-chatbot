@@ -6,10 +6,30 @@ import { Command } from "commander";
 import inquirer from "inquirer";
 import { handlePrompt } from "./app.js";
 import { addVectorEmbeddings } from "./data.js";
+import { initializeNotion } from "./notion.js";
 
 async function initialize() {
   await addVectorEmbeddings();
   console.log("✅ Database initialized with vector embeddings");
+}
+
+async function initializeWithNotion() {
+  // Check for Notion API token
+  if (!process.env.NOTION_API_TOKEN) {
+    console.error("❌ NOTION_API_TOKEN environment variable is required");
+    console.log("Please add it to your .env file: NOTION_API_TOKEN=<your_token>");
+    process.exit(1);
+  }
+
+  // Initialize Notion
+  const success = await initializeNotion();
+  
+  if (success) {
+    console.log("✅ Notion data loaded and embeddings created");
+  } else {
+    console.error("❌ Failed to initialize Notion data");
+    process.exit(1);
+  }
 }
 
 async function askQuestionsAndRespond() {
@@ -56,7 +76,12 @@ cli
 
 cli
   .command('initialize')
-  .description('Initialize the database and create vector embeddings')
+  .description('Initialize the database with regular content and create vector embeddings')
   .action(() => initialize());
+
+cli
+  .command('initialize-notion')
+  .description('Initialize the database with Notion content and create vector embeddings')
+  .action(() => initializeWithNotion());
 
 cli.parseAsync();
