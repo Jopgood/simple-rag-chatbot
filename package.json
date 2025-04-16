@@ -6,7 +6,8 @@
   "type": "module",
   "scripts": {
     "start": "node cli.js start",
-    "initialize": "node cli.js initialize",
+    "initialize": "npx prisma generate && node cli.js initialize",
+    "prisma:generate": "npx prisma generate",
     "test": "echo \"Error: no test specified\" && exit 1"
   },
   "keywords": [
